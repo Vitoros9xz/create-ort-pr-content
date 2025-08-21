@@ -1,0 +1,15 @@
+{
+  "manifest_version": 3,
+  "name": "Create PR Content",
+  "version": "1.0",
+  "description": "Thêm nút để tự động tạo nội dung PR từ trang task Chiho.",
+  "permissions": [
+    "clipboardWrite"
+  ],
+  "content_scripts": [
+    {
+      "matches": ["https://chiho-internal.openreach.tech/tasks/*"],
+      "js": ["content.js"]
+    }
+  ]
+}
