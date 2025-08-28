@@ -1,75 +1,72 @@
-// content.js - Phiên bản cải tiến với CSS và vị trí chèn
+// content.js - Phiên bản cuối cùng với phản hồi trên nút
 
 (function() {
     'use strict';
 
-    // ID cho các element của chúng ta để tránh xung đột và tiêm lại
     const BUTTON_ID = 'gemini-pr-content-button';
     const STYLE_ID = 'gemini-pr-content-styles';
 
-    // Hàm tiêm CSS cho nút và hiệu ứng hover
     const injectStyles = () => {
-        // Chỉ tiêm CSS một lần duy nhất
-        if (document.getElementById(STYLE_ID)) {
-            return;
-        }
-
+        if (document.getElementById(STYLE_ID)) return;
         const style = document.createElement('style');
         style.id = STYLE_ID;
         style.innerHTML = `
             #${BUTTON_ID} {
-                background-color: #28a745; /* Màu xanh lá cây */
-                color: white !important; /* Ghi đè các style khác nếu cần */
+                background-color: #007bff; /* Thay đổi màu sang xanh dương */
+                color: white !important;
                 border: none;
                 padding: 6px 14px;
                 border-radius: 4px;
                 cursor: pointer;
-                font-weight: 600;
+                font-weight: bold;
                 font-size: 14px;
                 line-height: 1.5;
-                margin-right: 10px; /* Khoảng cách với nút bên phải */
-                transition: background-color 0.2s ease-in-out;
-                white-space: nowrap; /* Đảm bảo text không bị xuống dòng */
+                margin-right: 10px;
+                transition: background-color 0.2s ease-in-out, color 0.2s ease-in-out;
+                white-space: nowrap;
+                width: 150px; /* Cho nút có độ rộng cố định */
+                text-align: center;
             }
-
             #${BUTTON_ID}:hover {
-                background-color: #218838; /* Màu xanh lá cây đậm hơn khi hover */
+                background-color: #0056b3;
             }
         `;
         document.head.appendChild(style);
     };
 
-    // Hàm để tìm và thêm nút
     const addCreatePrButton = () => {
-        // Đầu tiên, đảm bảo CSS đã được tiêm
         injectStyles();
-
         const actionsContainer = document.querySelector('.actions');
-
-        // Nếu tìm thấy .actions VÀ nút của chúng ta chưa tồn tại
         if (actionsContainer && !document.getElementById(BUTTON_ID)) {
             const prButton = document.createElement('button');
             prButton.id = BUTTON_ID;
-            prButton.textContent = 'Tạo Nội Dung PR';
-            prButton.className = 'btn'; // Vẫn giữ class 'btn' để nhất quán nếu cần
-
+            // THAY ĐỔI 1: Đổi nhãn sang tiếng Anh
+            prButton.textContent = 'Create PR Content';
+            prButton.className = 'btn';
             prButton.addEventListener('click', createPrContent);
-
-            // Chèn nút vào VỊ TRÍ ĐẦU TIÊN của container
             actionsContainer.insertBefore(prButton, actionsContainer.firstChild);
         }
     };
 
-    // Hàm logic chính để tạo nội dung (không thay đổi)
     function createPrContent() {
-        const currentUrl = window.location.href;
-        const contentElement = document.querySelector('.heading.markdown-body');
-        if (!contentElement) {
-            alert('Không tìm thấy nội dung tại selector ".heading.markdown-body"');
+        const prButton = document.getElementById(BUTTON_ID);
+        if (!prButton || prButton.textContent !== 'Create PR Content') {
+            // Không làm gì nếu đang trong trạng thái "Created!" hoặc "Error!"
             return;
         }
-        const contentText = contentElement.innerText.trim();
 
+        const originalButtonText = prButton.textContent;
+        const currentUrl = window.location.href;
+        const contentElement = document.querySelector('.heading.markdown-body');
+
+        if (!contentElement) {
+            console.error('Source element .heading.markdown-body not found');
+            prButton.textContent = 'Error!';
+            setTimeout(() => { prButton.textContent = originalButtonText; }, 2000);
+            return;
+        }
+
+        const contentText = contentElement.innerText.trim();
         const finalContent = `
 # Why
 
@@ -80,17 +77,19 @@
 * ${contentText}
         `.trim();
 
+        // THAY ĐỔI 2 & 3: Phản hồi trên nút, không dùng alert
         navigator.clipboard.writeText(finalContent).then(() => {
-            alert('Nội dung PR đã được sao chép vào clipboard!');
+            prButton.textContent = 'Created!';
+            setTimeout(() => { prButton.textContent = originalButtonText; }, 2000);
         }).catch(err => {
-            console.error('Không thể sao chép vào clipboard: ', err);
-            alert('Đã xảy ra lỗi khi sao chép.');
+            console.error('Failed to copy to clipboard: ', err);
+            prButton.textContent = 'Error!';
+            setTimeout(() => { prButton.textContent = originalButtonText; }, 2000);
         });
     }
 
-    // --- Logic MutationObserver (không thay đổi) ---
     const observer = new MutationObserver(() => addCreatePrButton());
     observer.observe(document.body, { childList: true, subtree: true });
-    addCreatePrButton(); // Thử chạy một lần lúc đầu
+    addCreatePrButton();
 
 })();
