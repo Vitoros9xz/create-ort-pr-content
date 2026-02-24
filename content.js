@@ -12,23 +12,33 @@
         style.id = STYLE_ID;
         style.innerHTML = `
             #${BUTTON_ID} {
-                background-color: #007bff; /* Thay đổi màu sang xanh dương */
+                position: fixed;
+                bottom: 20px;
+                right: 20px;
+                background-color: #007bff;
                 color: white !important;
                 border: none;
-                padding: 6px 14px;
-                border-radius: 4px;
+                padding: 12px 16px;
+                border-radius: 50px;
                 cursor: pointer;
                 font-weight: bold;
                 font-size: 14px;
                 line-height: 1.5;
-                margin-right: 10px;
-                transition: background-color 0.2s ease-in-out, color 0.2s ease-in-out;
+                transition: all 0.3s ease-in-out;
                 white-space: nowrap;
-                width: 150px; /* Cho nút có độ rộng cố định */
+                min-width: 160px;
                 text-align: center;
+                box-shadow: 0 4px 12px rgba(0, 123, 255, 0.3);
+                z-index: 9999;
+                user-select: none;
             }
             #${BUTTON_ID}:hover {
                 background-color: #0056b3;
+                transform: translateY(-2px);
+                box-shadow: 0 6px 16px rgba(0, 123, 255, 0.4);
+            }
+            #${BUTTON_ID}:active {
+                transform: translateY(0);
             }
         `;
         document.head.appendChild(style);
@@ -36,15 +46,16 @@
 
     const addCreatePrButton = () => {
         injectStyles();
-        const actionsContainer = document.querySelector('.actions');
-        if (actionsContainer && !document.getElementById(BUTTON_ID)) {
+        
+        // Chỉ thêm nút nếu chưa tồn tại và đang ở trang GitHub issue/PR
+        if (!document.getElementById(BUTTON_ID)) {
             const prButton = document.createElement('button');
             prButton.id = BUTTON_ID;
-            // THAY ĐỔI 1: Đổi nhãn sang tiếng Anh
             prButton.textContent = 'Create PR Content';
-            prButton.className = 'btn';
             prButton.addEventListener('click', createPrContent);
-            actionsContainer.insertBefore(prButton, actionsContainer.firstChild);
+            
+            // Thêm nút trực tiếp vào body thay vì actions container
+            document.body.appendChild(prButton);
         }
     };
 
